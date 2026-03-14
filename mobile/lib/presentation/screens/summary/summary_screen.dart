@@ -8,10 +8,12 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/hangout_summary.dart';
 import '../../../data/models/participant.dart';
 import '../../../data/models/receipt_item.dart';
 import '../../../data/models/settlement.dart';
 import '../../../providers/hangout_draft_provider.dart';
+import '../../../providers/hangout_history_provider.dart';
 import '../../widgets/participant_avatar/participant_avatar.dart';
 import '../hangout/claiming_screen.dart';
 
@@ -85,6 +87,7 @@ class SummaryScreen extends ConsumerWidget {
           // ── Done button ─────────────────────────────────────────────────
           ElevatedButton(
             onPressed: () {
+              _saveToHistory(ref);
               ref.read(hangoutDraftProvider.notifier).clear();
               context.go(AppRoutes.home);
             },
@@ -98,6 +101,27 @@ class SummaryScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  void _saveToHistory(WidgetRef ref) {
+    final summary = HangoutSummary(
+      id: 'h_${DateTime.now().millisecondsSinceEpoch}',
+      name: args.hangoutName,
+      createdAt: DateTime.now(),
+      total: args.total,
+      currency: 'USD',
+      participantNames: args.participants.map((p) => p.name).toList(),
+      settlements: args.settlements.map((s) {
+        final from = args.participants
+            .firstWhere((p) => p.id == s.fromParticipantId)
+            .name;
+        final to = args.participants
+            .firstWhere((p) => p.id == s.toParticipantId)
+            .name;
+        return SettlementSummary(fromName: from, toName: to, amount: s.amount);
+      }).toList(),
+    );
+    ref.read(hangoutHistoryProvider.notifier).save(summary);
   }
 
   void _share(BuildContext context) {
