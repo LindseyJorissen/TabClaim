@@ -6,6 +6,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../providers/auth_provider.dart';
+import '../../widgets/tab_claim_wordmark.dart';
 
 class AuthScreen extends ConsumerWidget {
   const AuthScreen({super.key});
@@ -24,20 +25,8 @@ class AuthScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              // ── Brand mark ──────────────────────────────────────────────
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: const Icon(
-                  Icons.receipt_long_rounded,
-                  color: Colors.white,
-                  size: 32,
-                ),
-              ),
+              // ── Wordmark ─────────────────────────────────────────────────
+              const TabClaimWordmark(fontSize: 40),
               const SizedBox(height: AppSpacing.xl),
               Text('Split the bill,\nnot the mood.', style: AppTypography.h1),
               const SizedBox(height: AppSpacing.sm),

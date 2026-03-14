@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../providers/auth_provider.dart';
+import '../../widgets/tab_claim_wordmark.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -22,7 +23,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> _navigate() async {
-    // Wait for the minimum brand display time and auth resolution in parallel.
     final results = await Future.wait([
       Future.delayed(const Duration(milliseconds: 1800)),
       ref.read(authProvider.future),
@@ -40,40 +40,21 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Logo mark — simple tab icon
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: const Icon(
-                Icons.receipt_long_rounded,
-                color: Colors.white,
-                size: 40,
-              ),
-            )
+            const TabClaimWordmark(fontSize: 48)
                 .animate()
-                .scale(duration: 400.ms, curve: Curves.easeOutBack)
-                .fadeIn(duration: 300.ms),
-            const SizedBox(height: 20),
-            Text(
-              'TabClaim',
-              style: AppTypography.h1,
-            )
-                .animate()
-                .fadeIn(delay: 300.ms, duration: 400.ms)
-                .slideY(begin: 0.3, end: 0, delay: 300.ms),
-            const SizedBox(height: 6),
+                .fadeIn(duration: 400.ms)
+                .slideY(
+                  begin: 0.15,
+                  end: 0,
+                  duration: 400.ms,
+                  curve: Curves.easeOut,
+                ),
+            const SizedBox(height: 10),
             Text(
               'Scan. Claim. Done.',
-              style: AppTypography.body.copyWith(
-                color: AppColors.inkSecondary,
-              ),
-            )
-                .animate()
-                .fadeIn(delay: 500.ms, duration: 400.ms),
+              style: AppTypography.body
+                  .copyWith(color: AppColors.inkSecondary),
+            ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
           ],
         ),
       ),
