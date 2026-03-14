@@ -5,6 +5,7 @@ import '../presentation/screens/auth/auth_screen.dart';
 import '../presentation/screens/home/home_screen.dart';
 import '../presentation/screens/hangout/create_hangout_screen.dart';
 import '../presentation/screens/receipt/scan_receipt_screen.dart';
+import '../presentation/screens/receipt/review_receipt_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
@@ -33,6 +34,14 @@ final appRouter = GoRouter(
         return ScanReceiptScreen(hangoutId: hangoutId);
       },
     ),
-    // Review, claiming, summary — added in upcoming parts
+    GoRoute(
+      path: AppRoutes.reviewReceipt, // /hangout/:id/review
+      builder: (context, state) {
+        final hangoutId = state.pathParameters['id']!;
+        final payload = state.extra as ScanPayload?;
+        return ReviewReceiptScreen(hangoutId: hangoutId, payload: payload);
+      },
+    ),
+    // Claiming, summary — added in Part 4
   ],
 );
