@@ -35,43 +35,39 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
   // ── Public actions ──────────────────────────────────────────────────────────
 
+  /// Throws on failure so callers can display inline errors.
   Future<void> login({
     required String email,
     required String password,
   }) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      final result = await _service.login(email: email, password: password);
-      await SecureTokenStore.save(
-        access: result.access,
-        refresh: result.refresh,
-        user: result.user,
-      );
-      await _clearGuest();
-      return AuthState(user: result.user);
-    });
+    final result = await _service.login(email: email, password: password);
+    await SecureTokenStore.save(
+      access: result.access,
+      refresh: result.refresh,
+      user: result.user,
+    );
+    await _clearGuest();
+    state = AsyncData(AuthState(user: result.user));
   }
 
+  /// Throws on failure so callers can display inline errors.
   Future<void> register({
     required String email,
     required String password,
     required String displayName,
   }) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      final result = await _service.register(
-        email: email,
-        password: password,
-        displayName: displayName,
-      );
-      await SecureTokenStore.save(
-        access: result.access,
-        refresh: result.refresh,
-        user: result.user,
-      );
-      await _clearGuest();
-      return AuthState(user: result.user);
-    });
+    final result = await _service.register(
+      email: email,
+      password: password,
+      displayName: displayName,
+    );
+    await SecureTokenStore.save(
+      access: result.access,
+      refresh: result.refresh,
+      user: result.user,
+    );
+    await _clearGuest();
+    state = AsyncData(AuthState(user: result.user));
   }
 
   Future<void> continueAsGuest() async {

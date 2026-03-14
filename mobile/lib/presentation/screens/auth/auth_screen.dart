@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../providers/auth_provider.dart';
 
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends ConsumerWidget {
   const AuthScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -48,18 +50,21 @@ class AuthScreen extends StatelessWidget {
               const Spacer(),
               // ── Actions ─────────────────────────────────────────────────
               ElevatedButton(
-                onPressed: () => context.go(AppRoutes.home),
+                onPressed: () async {
+                  await ref.read(authProvider.notifier).continueAsGuest();
+                  if (context.mounted) context.go(AppRoutes.home);
+                },
                 child: const Text('Continue as guest'),
               ),
               const SizedBox(height: AppSpacing.sm),
               OutlinedButton(
-                onPressed: () {}, // TODO: account creation
+                onPressed: () => context.push(AppRoutes.register),
                 child: const Text('Create account'),
               ),
               const SizedBox(height: AppSpacing.base),
               Center(
                 child: TextButton(
-                  onPressed: () {}, // TODO: login
+                  onPressed: () => context.push(AppRoutes.login),
                   child: Text(
                     'Already have an account? Sign in',
                     style: AppTypography.captionMedium.copyWith(

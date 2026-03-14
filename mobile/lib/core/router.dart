@@ -2,6 +2,8 @@ import 'package:go_router/go_router.dart';
 import 'constants/app_routes.dart';
 import '../presentation/screens/splash/splash_screen.dart';
 import '../presentation/screens/auth/auth_screen.dart';
+import '../presentation/screens/auth/login_screen.dart';
+import '../presentation/screens/auth/register_screen.dart';
 import '../presentation/screens/home/home_screen.dart';
 import '../presentation/screens/hangout/claiming_screen.dart';
 import '../presentation/screens/hangout/create_hangout_screen.dart';
@@ -20,6 +22,14 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.auth,
       builder: (context, state) => const AuthScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.login,
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.register,
+      builder: (context, state) => const RegisterScreen(),
     ),
     GoRoute(
       path: AppRoutes.home,
