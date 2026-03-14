@@ -3,9 +3,11 @@ import 'constants/app_routes.dart';
 import '../presentation/screens/splash/splash_screen.dart';
 import '../presentation/screens/auth/auth_screen.dart';
 import '../presentation/screens/home/home_screen.dart';
+import '../presentation/screens/hangout/claiming_screen.dart';
 import '../presentation/screens/hangout/create_hangout_screen.dart';
 import '../presentation/screens/receipt/scan_receipt_screen.dart';
 import '../presentation/screens/receipt/review_receipt_screen.dart';
+import '../presentation/screens/summary/summary_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
@@ -42,6 +44,19 @@ final appRouter = GoRouter(
         return ReviewReceiptScreen(hangoutId: hangoutId, payload: payload);
       },
     ),
-    // Claiming, summary — added in Part 4
+    GoRoute(
+      path: AppRoutes.claiming, // /hangout/:id/claim
+      builder: (context, state) {
+        final hangoutId = state.pathParameters['id']!;
+        return ClaimingScreen(hangoutId: hangoutId);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.summary, // /hangout/:id/summary
+      builder: (context, state) {
+        final args = state.extra as SummaryArgs;
+        return SummaryScreen(args: args);
+      },
+    ),
   ],
 );

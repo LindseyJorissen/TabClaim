@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -8,6 +9,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/receipt_parser.dart';
 import '../../../data/models/receipt_item.dart';
+import '../../../providers/hangout_draft_provider.dart';
 import 'scan_receipt_screen.dart';
 
 // ── Local editable model ──────────────────────────────────────────────────────
@@ -51,7 +53,7 @@ class _EditableItem {
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-class ReviewReceiptScreen extends StatefulWidget {
+class ReviewReceiptScreen extends ConsumerStatefulWidget {
   const ReviewReceiptScreen({
     super.key,
     required this.hangoutId,
@@ -62,10 +64,11 @@ class ReviewReceiptScreen extends StatefulWidget {
   final ScanPayload? payload;
 
   @override
-  State<ReviewReceiptScreen> createState() => _ReviewReceiptScreenState();
+  ConsumerState<ReviewReceiptScreen> createState() =>
+      _ReviewReceiptScreenState();
 }
 
-class _ReviewReceiptScreenState extends State<ReviewReceiptScreen> {
+class _ReviewReceiptScreenState extends ConsumerState<ReviewReceiptScreen> {
   late final List<_EditableItem> _items;
   bool _showReviewBanner = false;
 
@@ -139,21 +142,20 @@ class _ReviewReceiptScreenState extends State<ReviewReceiptScreen> {
   }
 
   void _confirm() {
-    // Pass items forward to the claiming screen.
-    context.push(
-      '/hangout/${widget.hangoutId}/claim',
-      extra: _items
-          .map((i) => ReceiptItem(
-                id: i.id,
-                receiptId: 'receipt_local',
-                name: i.name,
-                unitPrice: i.unitPrice,
-                quantity: i.quantity,
-                type: i.type,
-                ocrConfidence: i.ocrConfidence,
-              ))
-          .toList(),
-    );
+    final receiptItems = _items
+        .map((i) => ReceiptItem(
+              id: i.id,
+              receiptId: 'receipt_local',
+              name: i.name,
+              unitPrice: i.unitPrice,
+              quantity: i.quantity,
+              type: i.type,
+              ocrConfidence: i.ocrConfidence,
+            ))
+        .toList();
+
+    ref.read(hangoutDraftProvider.notifier).setItems(receiptItems);
+    context.push('/hangout/${widget.hangoutId}/claim');
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────

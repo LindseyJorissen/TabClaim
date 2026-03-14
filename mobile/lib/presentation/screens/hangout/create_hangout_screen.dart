@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../data/models/participant.dart';
+import '../../../providers/hangout_draft_provider.dart';
 import '../../widgets/participant_avatar/participant_avatar.dart';
 
-class CreateHangoutScreen extends StatefulWidget {
+class CreateHangoutScreen extends ConsumerStatefulWidget {
   const CreateHangoutScreen({super.key});
 
   @override
-  State<CreateHangoutScreen> createState() => _CreateHangoutScreenState();
+  ConsumerState<CreateHangoutScreen> createState() =>
+      _CreateHangoutScreenState();
 }
 
-class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
+class _CreateHangoutScreenState extends ConsumerState<CreateHangoutScreen> {
   final _nameController = TextEditingController();
   final _participantController = TextEditingController();
   final List<Participant> _participants = [];
@@ -180,10 +183,12 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
               child: ElevatedButton(
                 onPressed: _canProceed
                     ? () {
-                        // TODO(state): persist hangout before navigating.
-                        // Using a temporary ID until Riverpod state is wired in Part 4.
-                        const tempId = 'local';
-                        context.push('/hangout/$tempId/scan');
+                        ref.read(hangoutDraftProvider.notifier).start(
+                              name: _nameController.text.trim(),
+                              participants: _participants,
+                              payerIndex: _payerIndex,
+                            );
+                        context.push('/hangout/local/scan');
                       }
                     : null,
                 child: const Text('Scan receipt'),
