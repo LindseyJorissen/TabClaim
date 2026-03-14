@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../providers/auth_provider.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -20,8 +22,14 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 1800));
-    if (mounted) context.go(AppRoutes.auth);
+    // Wait for the minimum brand display time and auth resolution in parallel.
+    final results = await Future.wait([
+      Future.delayed(const Duration(milliseconds: 1800)),
+      ref.read(authProvider.future),
+    ]);
+    if (!mounted) return;
+    final auth = results[1] as AuthState;
+    context.go(auth.hasSession ? AppRoutes.home : AppRoutes.auth);
   }
 
   @override
