@@ -20,16 +20,15 @@ dependencies:
 
   # Networking
   dio: ^5.8.0+1
-  retrofit: ^4.4.1
 
   # Data / serialization
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
 
   # Secure local storage (tokens)
   flutter_secure_storage: ^9.2.4
 
-  # Local prefs (non-sensitive settings)
+  # Local prefs
   shared_preferences: ^2.3.5
 
   # OCR — Google ML Kit (on-device)
@@ -38,7 +37,6 @@ dependencies:
   # Camera & image picker
   camera: ^0.11.1
   image_picker: ^1.1.2
-  image_cropper: ^8.1.1
 
   # Animations
   flutter_animate: ^4.5.2
@@ -49,9 +47,7 @@ dependencies:
   equatable: ^2.0.7
   collection: ^1.19.1
 
-  # Icons
   cupertino_icons: ^1.0.8
-  iconsax_flutter: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -60,10 +56,9 @@ dev_dependencies:
 
   # Code generation
   build_runner: ^2.4.15
-  freezed: ^2.5.8
+  freezed: ^3.0.0
   json_serializable: ^6.9.4
   riverpod_generator: ^2.6.5
-  retrofit_generator: ^9.1.6+1
 
   # Linting
   custom_lint: ^0.7.5

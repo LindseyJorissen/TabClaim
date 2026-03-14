@@ -1,0 +1,51 @@
+# ── Node.js / Backend ─────────────────────────────────────────────────────────
+node_modules/
+backend/node_modules/
+backend/dist/
+backend/.env
+backend/.env.local
+backend/.env.production
+backend/prisma/migrations/**/migration.sql
+*.log
+npm-debug.log*
+
+# ── Flutter / Dart ────────────────────────────────────────────────────────────
+mobile/build/
+mobile/.dart_tool/
+mobile/.packages
+mobile/.pub-cache/
+mobile/.pub/
+mobile/android/.gradle/
+mobile/android/app/debug/
+mobile/android/app/profile/
+mobile/android/app/release/
+mobile/android/local.properties
+mobile/android/key.properties
+mobile/android/*.jks
+mobile/ios/.symlinks/
+mobile/ios/Pods/
+mobile/ios/Podfile.lock
+mobile/ios/Runner.xcworkspace/xcuserdata/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/coverage/
+*.g.dart
+*.freezed.dart
+
+# ── Secrets / credentials ─────────────────────────────────────────────────────
+.env
+.env.*
+*.pem
+*.key
+secrets/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor ───────────────────────────────────────────────────────────────────
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
