@@ -140,6 +140,7 @@ class _ClaimingScreenState extends ConsumerState<ClaimingScreen> {
         settlements: settlements,
         total: receipt.grandTotal,
         payerName: draft.payer.name,
+        payerId: draft.payer.id,
       ),
     );
   }
@@ -702,6 +703,7 @@ class SummaryArgs {
     required this.settlements,
     required this.total,
     required this.payerName,
+    required this.payerId,
   });
 
   final String hangoutName;
@@ -710,6 +712,7 @@ class SummaryArgs {
   final List<Settlement> settlements;
   final double total;
   final String payerName;
+  final String payerId;
 }
 
 // Private alias used in this file.

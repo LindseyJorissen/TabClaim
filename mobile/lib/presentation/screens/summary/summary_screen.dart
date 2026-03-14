@@ -12,26 +12,131 @@ import '../../../data/models/hangout_summary.dart';
 import '../../../data/models/participant.dart';
 import '../../../data/models/receipt_item.dart';
 import '../../../data/models/settlement.dart';
+import '../../../data/services/api_client.dart';
+import '../../../data/services/hangout_sync_service.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/hangout_draft_provider.dart';
 import '../../../providers/hangout_history_provider.dart';
 import '../../widgets/participant_avatar/participant_avatar.dart';
 import '../hangout/claiming_screen.dart';
 
-class SummaryScreen extends ConsumerWidget {
+enum _SyncStatus { idle, syncing, synced, failed }
+
+class SummaryScreen extends ConsumerStatefulWidget {
   const SummaryScreen({super.key, required this.args});
   final SummaryArgs args;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SummaryScreen> createState() => _SummaryScreenState();
+}
+
+class _SummaryScreenState extends ConsumerState<SummaryScreen> {
+  _SyncStatus _syncStatus = _SyncStatus.idle;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _trySync());
+  }
+
+  // ── Sync ─────────────────────────────────────────────────────────────────
+
+  Future<void> _trySync() async {
+    final auth = ref.read(authProvider).valueOrNull;
+    if (auth == null || !auth.isAuthenticated) return; // guests don't sync
+
+    setState(() => _syncStatus = _SyncStatus.syncing);
+    try {
+      await HangoutSyncService(ApiClient.instance).sync(widget.args);
+      if (mounted) setState(() => _syncStatus = _SyncStatus.synced);
+    } catch (_) {
+      if (mounted) setState(() => _syncStatus = _SyncStatus.failed);
+    }
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+
+  void _done() {
+    _saveToHistory();
+    ref.read(hangoutDraftProvider.notifier).clear();
+    context.go(AppRoutes.home);
+  }
+
+  void _saveToHistory() {
+    final summary = HangoutSummary(
+      id: 'h_${DateTime.now().millisecondsSinceEpoch}',
+      name: widget.args.hangoutName,
+      createdAt: DateTime.now(),
+      total: widget.args.total,
+      currency: 'USD',
+      participantNames:
+          widget.args.participants.map((p) => p.name).toList(),
+      settlements: widget.args.settlements.map((s) {
+        final from = widget.args.participants
+            .firstWhere((p) => p.id == s.fromParticipantId)
+            .name;
+        final to = widget.args.participants
+            .firstWhere((p) => p.id == s.toParticipantId)
+            .name;
+        return SettlementSummary(fromName: from, toName: to, amount: s.amount);
+      }).toList(),
+    );
+    ref.read(hangoutHistoryProvider.notifier).save(summary);
+  }
+
+  void _share() {
+    Clipboard.setData(ClipboardData(text: _buildShareText()));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Summary copied to clipboard'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  String _buildShareText() {
+    final buf = StringBuffer();
+    buf.writeln('💸 ${widget.args.hangoutName}');
+    buf.writeln('Total: ${CurrencyFormatter.format(widget.args.total)}');
+    buf.writeln();
+
+    if (widget.args.settlements.isEmpty) {
+      buf.writeln('Everyone owes the same — split evenly!');
+    } else {
+      for (final s in widget.args.settlements) {
+        final from = widget.args.participants
+            .firstWhere((p) => p.id == s.fromParticipantId)
+            .name;
+        final to = widget.args.participants
+            .firstWhere((p) => p.id == s.toParticipantId)
+            .name;
+        buf.writeln('$from owes $to ${CurrencyFormatter.format(s.amount)}');
+      }
+    }
+
+    buf.writeln();
+    buf.writeln('Split with TabClaim');
+    return buf.toString();
+  }
+
+  // ── Build ─────────────────────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(args.hangoutName),
+        title: Text(widget.args.hangoutName),
         automaticallyImplyLeading: false,
         actions: [
+          if (_syncStatus != _SyncStatus.idle)
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
+              child: _SyncBadge(status: _syncStatus),
+            ),
           IconButton(
             icon: const Icon(Icons.share_outlined),
-            onPressed: () => _share(context),
+            onPressed: _share,
             tooltip: 'Share',
           ),
         ],
@@ -46,8 +151,8 @@ class SummaryScreen extends ConsumerWidget {
         children: [
           // ── Success header ──────────────────────────────────────────────
           _SuccessHeader(
-            total: args.total,
-            payerName: args.payerName,
+            total: widget.args.total,
+            payerName: widget.args.payerName,
           ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
 
           const SizedBox(height: AppSpacing.xxl),
@@ -56,15 +161,15 @@ class SummaryScreen extends ConsumerWidget {
           Text('Who owes what', style: AppTypography.h3),
           const SizedBox(height: AppSpacing.sm),
 
-          if (args.settlements.isEmpty)
+          if (widget.args.settlements.isEmpty)
             _EvenCard()
           else
-            ...args.settlements.asMap().entries.map(
+            ...widget.args.settlements.asMap().entries.map(
                   (e) => Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                     child: _SettlementCard(
                       settlement: e.value,
-                      participants: args.participants,
+                      participants: widget.args.participants,
                     ).animate().fadeIn(
                           delay: (e.key * 80).ms,
                           duration: 300.ms,
@@ -78,86 +183,54 @@ class SummaryScreen extends ConsumerWidget {
           Text('Per person', style: AppTypography.h3),
           const SizedBox(height: AppSpacing.sm),
           _PerPersonBreakdown(
-            participants: args.participants,
-            items: args.items,
+            participants: widget.args.participants,
+            items: widget.args.items,
           ),
 
           const SizedBox(height: AppSpacing.xxl),
 
-          // ── Done button ─────────────────────────────────────────────────
+          // ── Actions ─────────────────────────────────────────────────────
           ElevatedButton(
-            onPressed: () {
-              _saveToHistory(ref);
-              ref.read(hangoutDraftProvider.notifier).clear();
-              context.go(AppRoutes.home);
-            },
+            onPressed: _done,
             child: const Text('Done'),
           ),
           const SizedBox(height: AppSpacing.sm),
           OutlinedButton(
-            onPressed: () => _share(context),
+            onPressed: _share,
             child: const Text('Copy summary'),
           ),
         ],
       ),
     );
   }
+}
 
-  void _saveToHistory(WidgetRef ref) {
-    final summary = HangoutSummary(
-      id: 'h_${DateTime.now().millisecondsSinceEpoch}',
-      name: args.hangoutName,
-      createdAt: DateTime.now(),
-      total: args.total,
-      currency: 'USD',
-      participantNames: args.participants.map((p) => p.name).toList(),
-      settlements: args.settlements.map((s) {
-        final from = args.participants
-            .firstWhere((p) => p.id == s.fromParticipantId)
-            .name;
-        final to = args.participants
-            .firstWhere((p) => p.id == s.toParticipantId)
-            .name;
-        return SettlementSummary(fromName: from, toName: to, amount: s.amount);
-      }).toList(),
-    );
-    ref.read(hangoutHistoryProvider.notifier).save(summary);
-  }
+// ── Sync badge ────────────────────────────────────────────────────────────────
 
-  void _share(BuildContext context) {
-    final text = _buildShareText();
-    Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Summary copied to clipboard'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
+class _SyncBadge extends StatelessWidget {
+  const _SyncBadge({required this.status});
+  final _SyncStatus status;
 
-  String _buildShareText() {
-    final buf = StringBuffer();
-    buf.writeln('💸 ${args.hangoutName}');
-    buf.writeln('Total: ${CurrencyFormatter.format(args.total)}');
-    buf.writeln();
-
-    if (args.settlements.isEmpty) {
-      buf.writeln('Everyone owes the same — split evenly!');
-    } else {
-      for (final s in args.settlements) {
-        final from = args.participants
-            .firstWhere((p) => p.id == s.fromParticipantId)
-            .name;
-        final to = args.participants
-            .firstWhere((p) => p.id == s.toParticipantId)
-            .name;
-        buf.writeln('$from owes $to ${CurrencyFormatter.format(s.amount)}');
-      }
-    }
-
-    buf.writeln();
-    buf.writeln('Split with TabClaim');
-    return buf.toString();
+  @override
+  Widget build(BuildContext context) {
+    return switch (status) {
+      _SyncStatus.syncing => const SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      _SyncStatus.synced => const Tooltip(
+          message: 'Saved to account',
+          child: Icon(Icons.cloud_done_outlined,
+              size: 20, color: AppColors.success),
+        ),
+      _SyncStatus.failed => const Tooltip(
+          message: 'Saved locally only',
+          child: Icon(Icons.cloud_off_outlined,
+              size: 20, color: AppColors.warning),
+        ),
+      _ => const SizedBox.shrink(),
+    };
   }
 }
 
@@ -237,10 +310,7 @@ class _SettlementCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(from.name, style: AppTypography.bodyMedium),
-                Text(
-                  'owes ${to.name}',
-                  style: AppTypography.caption,
-                ),
+                Text('owes ${to.name}', style: AppTypography.caption),
               ],
             ),
           ),
@@ -270,8 +340,7 @@ class _EvenCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Text(
             'Everything is split evenly — no debts!',
-            style:
-                AppTypography.body.copyWith(color: AppColors.success),
+            style: AppTypography.body.copyWith(color: AppColors.success),
           ),
         ],
       ),
