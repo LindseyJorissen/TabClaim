@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Users ──────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  participants Participant[]
+  hangouts     Hangout[]     @relation("HangoutCreator")
+
+  @@map("users")
+}
+
+// ── Hangouts ───────────────────────────────────────────────────────────────────
+
+enum HangoutStatus {
+  SETUP
+  SCANNING
+  REVIEWING
+  CLAIMING
+  FINALIZED
+}
+
+model Hangout {
+  id        String        @id @default(uuid())
+  name      String
+  status    HangoutStatus @default(SETUP)
+  currency  String        @default("USD")
+  venueNote String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  creatorId String
+  creator   User   @relation("HangoutCreator", fields: [creatorId], references: [id])
+
+  participants Participant[]
+  receipts     Receipt[]
+  settlements  Settlement[]
+
+  @@map("hangouts")
+}
+
+// ── Participants ───────────────────────────────────────────────────────────────
+
+model Participant {
+  id         String  @id @default(uuid())
+  name       String
+  emoji      String?
+  colorIndex Int     @default(0)
+  isHost     Boolean @default(false)
+  isPayer    Boolean @default(false)
+
+  hangoutId String
+  hangout   Hangout @relation(fields: [hangoutId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  assignments  ItemAssignment[]
+  owesFrom     Settlement[]     @relation("DebtorSettlements")
+  owesTo       Settlement[]     @relation("CreditorSettlements")
+
+  @@map("participants")
+}
+
+// ── Receipts ───────────────────────────────────────────────────────────────────
+
+model Receipt {
+  id             String   @id @default(uuid())
+  scannedAt      DateTime @default(now())
+  imagePath      String?
+  restaurantName String?
+
+  hangoutId String
+  hangout   Hangout @relation(fields: [hangoutId], references: [id], onDelete: Cascade)
+
+  items ReceiptItem[]
+
+  @@map("receipts")
+}
+
+// ── Receipt Items ──────────────────────────────────────────────────────────────
+
+enum ReceiptItemType {
+  FOOD
+  FEE
+  TAX
+  DISCOUNT
+}
+
+model ReceiptItem {
+  id            String          @id @default(uuid())
+  name          String
+  unitPrice     Decimal         @db.Decimal(10, 2)
+  quantity      Int             @default(1)
+  type          ReceiptItemType @default(FOOD)
+  isExpanded    Boolean         @default(false)
+  ocrConfidence Float           @default(1.0)
+
+  receiptId String
+  receipt   Receipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+
+  parentItemId String?
+  parentItem   ReceiptItem?  @relation("SubItems", fields: [parentItemId], references: [id])
+  subItems     ReceiptItem[] @relation("SubItems")
+
+  assignments ItemAssignment[]
+
+  @@map("receipt_items")
+}
+
+// ── Item Assignments ───────────────────────────────────────────────────────────
+
+model ItemAssignment {
+  id        String  @id @default(uuid())
+  portion   Float // 0.0–1.0 (portion of item cost)
+
+  itemId        String
+  item          ReceiptItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, participantId])
+  @@map("item_assignments")
+}
+
+// ── Settlements ────────────────────────────────────────────────────────────────
+
+model Settlement {
+  id       String  @id @default(uuid())
+  amount   Decimal @db.Decimal(10, 2)
+  currency String  @default("USD")
+  isPaid   Boolean @default(false)
+  paidAt   DateTime?
+
+  fromParticipantId String
+  fromParticipant   Participant @relation("DebtorSettlements", fields: [fromParticipantId], references: [id])
+
+  toParticipantId String
+  toParticipant   Participant @relation("CreditorSettlements", fields: [toParticipantId], references: [id])
+
+  hangoutId String
+  hangout   Hangout @relation(fields: [hangoutId], references: [id], onDelete: Cascade)
+
+  @@map("settlements")
+}
