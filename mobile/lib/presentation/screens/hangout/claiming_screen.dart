@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -59,6 +60,7 @@ class _ClaimingScreenState extends ConsumerState<ClaimingScreen> {
     final existing = _assignments[item.id] ?? {};
 
     if (_activeParticipantId != null) {
+      HapticFeedback.lightImpact();
       // Assign 100% to active participant instantly.
       setState(() {
         _assignments[item.id] = {_activeParticipantId!: 1.0};
@@ -102,6 +104,7 @@ class _ClaimingScreenState extends ConsumerState<ClaimingScreen> {
   // ── Finalize ──────────────────────────────────────────────────────────────
 
   void _finalize(HangoutDraft draft) {
+    HapticFeedback.heavyImpact();
     // Merge assignments back onto items.
     final assignedItems = draft.items.map((item) {
       final a = _assignments[item.id];
@@ -202,15 +205,34 @@ class _ClaimingScreenState extends ConsumerState<ClaimingScreen> {
                     itemBuilder: (context, i) {
                       final item = foodItems[i];
                       final assignment = _assignments[item.id] ?? {};
+                      final isAssigned = assignment.isNotEmpty;
                       return _ClaimCard(
                         item: item,
                         assignment: assignment,
                         participants: draft.participants,
                         onTap: () => _onItemTap(item, draft),
                         onLongPress: () => _onItemLongPress(item, draft),
-                      ).animate().fadeIn(
+                      )
+                          .animate()
+                          .fadeIn(
                             delay: (i * 30).ms,
                             duration: 250.ms,
+                          )
+                          .animate(
+                            key: ValueKey('${item.id}_$isAssigned'),
+                          )
+                          .scale(
+                            begin: const Offset(1, 1),
+                            end: const Offset(1.03, 1.03),
+                            duration: 120.ms,
+                            curve: Curves.easeOut,
+                          )
+                          .then()
+                          .scale(
+                            begin: const Offset(1.03, 1.03),
+                            end: const Offset(1, 1),
+                            duration: 100.ms,
+                            curve: Curves.easeIn,
                           );
                     },
                   ),
@@ -220,10 +242,11 @@ class _ClaimingScreenState extends ConsumerState<ClaimingScreen> {
           _ParticipantStrip(
             participants: draft.participants,
             activeId: _activeParticipantId,
-            onSelect: (id) => setState(
-              () => _activeParticipantId =
-                  _activeParticipantId == id ? null : id,
-            ),
+            onSelect: (id) {
+              HapticFeedback.selectionClick();
+              setState(() => _activeParticipantId =
+                  _activeParticipantId == id ? null : id);
+            },
           ),
 
           // ── Finalize CTA ──────────────────────────────────────────────
@@ -232,6 +255,7 @@ class _ClaimingScreenState extends ConsumerState<ClaimingScreen> {
             unclaimedCount: foodItems.length - claimed,
             onFinalize: () => _finalize(draft),
             onSplitRemaining: () {
+              HapticFeedback.mediumImpact();
               // Split all unassigned items evenly across all participants.
               setState(() {
                 final portion = 1.0 / draft.participants.length;
