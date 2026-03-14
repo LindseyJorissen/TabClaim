@@ -31,7 +31,7 @@ class ParticipantAvatar extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         border: isSelected
             ? Border.all(color: color, width: 2.5)
             : null,

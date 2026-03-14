@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import '../models/receipt_item.dart';
 import '../../core/utils/receipt_parser.dart';
 
 /// Result from a single OCR pass.

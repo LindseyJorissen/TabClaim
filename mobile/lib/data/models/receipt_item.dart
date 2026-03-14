@@ -17,7 +17,7 @@ enum ReceiptItemType {
 /// [quantity] individual sub-items. Each sub-item can be
 /// assigned to a different participant.
 @freezed
-class ReceiptItem with _$ReceiptItem {
+abstract class ReceiptItem with _$ReceiptItem {
   const factory ReceiptItem({
     required String id,
     required String receiptId,

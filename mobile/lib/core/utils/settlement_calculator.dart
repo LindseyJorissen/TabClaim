@@ -1,5 +1,4 @@
 import '../../data/models/hangout.dart';
-import '../../data/models/participant.dart';
 import '../../data/models/receipt.dart';
 import '../../data/models/receipt_item.dart';
 import '../../data/models/settlement.dart';

@@ -5,7 +5,7 @@ part 'receipt.freezed.dart';
 part 'receipt.g.dart';
 
 @freezed
-class Receipt with _$Receipt {
+abstract class Receipt with _$Receipt {
   const factory Receipt({
     required String id,
     required String hangoutId,

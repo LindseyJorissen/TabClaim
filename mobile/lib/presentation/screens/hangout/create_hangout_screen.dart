@@ -114,7 +114,7 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: _participants.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (context, index) =>
                             const SizedBox(height: AppSpacing.sm),
                         itemBuilder: (context, index) {
                           final p = _participants[index];
@@ -180,8 +180,10 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
               child: ElevatedButton(
                 onPressed: _canProceed
                     ? () {
-                        // TODO: create hangout in state, navigate to scan
-                        context.push('/hangout/new/scan');
+                        // TODO(state): persist hangout before navigating.
+                        // Using a temporary ID until Riverpod state is wired in Part 4.
+                        const tempId = 'local';
+                        context.push('/hangout/$tempId/scan');
                       }
                     : null,
                 child: const Text('Scan receipt'),

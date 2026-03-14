@@ -101,7 +101,7 @@ class _StartCard extends StatelessWidget {
                     Text(
                       'Scan a receipt and start claiming',
                       style: AppTypography.body.copyWith(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -111,7 +111,7 @@ class _StartCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(AppSpacing.radius),
                 ),
                 child: const Icon(

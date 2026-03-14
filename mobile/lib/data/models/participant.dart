@@ -6,7 +6,7 @@ part 'participant.g.dart';
 /// A person participating in a hangout.
 /// Can be a registered user (has userId) or a guest (userId is null).
 @freezed
-class Participant with _$Participant {
+abstract class Participant with _$Participant {
   const factory Participant({
     required String id,
     String? userId,         // null = guest

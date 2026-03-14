@@ -5,7 +5,7 @@ part 'settlement.g.dart';
 
 /// A single debt: [fromParticipantId] owes [toParticipantId] [amount].
 @freezed
-class Settlement with _$Settlement {
+abstract class Settlement with _$Settlement {
   const factory Settlement({
     required String fromParticipantId,
     required String toParticipantId,

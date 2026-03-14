@@ -15,7 +15,7 @@ enum HangoutStatus {
 }
 
 @freezed
-class Hangout with _$Hangout {
+abstract class Hangout with _$Hangout {
   const factory Hangout({
     required String id,
     required String name,
