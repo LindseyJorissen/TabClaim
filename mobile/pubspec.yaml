@@ -1,0 +1,76 @@
+name: tabclaim
+description: "Split restaurant bills visually — scan, claim, done."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^15.1.2
+
+  # Networking
+  dio: ^5.8.0+1
+  retrofit: ^4.4.1
+
+  # Data / serialization
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Secure local storage (tokens)
+  flutter_secure_storage: ^9.2.4
+
+  # Local prefs (non-sensitive settings)
+  shared_preferences: ^2.3.5
+
+  # OCR — Google ML Kit (on-device)
+  google_mlkit_text_recognition: ^0.15.0
+
+  # Camera & image picker
+  camera: ^0.11.1
+  image_picker: ^1.1.2
+  image_cropper: ^8.1.1
+
+  # Animations
+  flutter_animate: ^4.5.2
+
+  # Utilities
+  uuid: ^4.5.1
+  intl: ^0.19.0
+  equatable: ^2.0.7
+  collection: ^1.19.1
+
+  # Icons
+  cupertino_icons: ^1.0.8
+  iconsax_flutter: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Code generation
+  build_runner: ^2.4.15
+  freezed: ^2.5.8
+  json_serializable: ^6.9.4
+  riverpod_generator: ^2.6.5
+  retrofit_generator: ^9.1.6+1
+
+  # Linting
+  custom_lint: ^0.7.5
+  riverpod_lint: ^2.6.5
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
