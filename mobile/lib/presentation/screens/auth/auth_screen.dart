@@ -1,0 +1,78 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_routes.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
+
+class AuthScreen extends StatelessWidget {
+  const AuthScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenPaddingH,
+            vertical: AppSpacing.screenPaddingV,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Spacer(),
+              // ── Brand mark ──────────────────────────────────────────────
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Icon(
+                  Icons.receipt_long_rounded,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              Text('Split the bill,\nnot the mood.', style: AppTypography.h1),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'Scan any receipt, claim your items, and see exactly what everyone owes.',
+                style: AppTypography.body.copyWith(
+                  color: AppColors.inkSecondary,
+                ),
+              ),
+              const Spacer(),
+              // ── Actions ─────────────────────────────────────────────────
+              ElevatedButton(
+                onPressed: () => context.go(AppRoutes.home),
+                child: const Text('Continue as guest'),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              OutlinedButton(
+                onPressed: () {}, // TODO: account creation
+                child: const Text('Create account'),
+              ),
+              const SizedBox(height: AppSpacing.base),
+              Center(
+                child: TextButton(
+                  onPressed: () {}, // TODO: login
+                  child: Text(
+                    'Already have an account? Sign in',
+                    style: AppTypography.captionMedium.copyWith(
+                      color: AppColors.inkSecondary,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.base),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
