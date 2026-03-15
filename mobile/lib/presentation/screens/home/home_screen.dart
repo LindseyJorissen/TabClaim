@@ -8,7 +8,6 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/hangout_summary.dart';
 import '../../../providers/hangout_history_provider.dart';
-import '../../widgets/tab_claim_wordmark.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -20,7 +19,12 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const TabClaimWordmark(fontSize: 22),
+        title: Image.asset(
+          'assets/icons/text_only.png',
+          height: 26,
+          fit: BoxFit.contain,
+          alignment: Alignment.centerLeft,
+        ),
         actions: [
           IconButton(
             onPressed: () => context.push(AppRoutes.settings),

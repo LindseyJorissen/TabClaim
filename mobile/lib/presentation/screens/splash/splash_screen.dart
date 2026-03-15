@@ -6,7 +6,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../providers/auth_provider.dart';
-import '../../widgets/tab_claim_wordmark.dart';
+
+import '../onboarding/onboarding_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -26,8 +27,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final results = await Future.wait([
       Future.delayed(const Duration(milliseconds: 1800)),
       ref.read(authProvider.future),
+      hasSeenOnboarding(),
     ]);
     if (!mounted) return;
+    final seenOnboarding = results[2] as bool;
+    if (!seenOnboarding) {
+      context.go(AppRoutes.onboarding);
+      return;
+    }
     final auth = results[1] as AuthState;
     context.go(auth.hasSession ? AppRoutes.home : AppRoutes.auth);
   }
@@ -40,15 +47,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const TabClaimWordmark(fontSize: 48)
+            Image.asset(
+              'assets/icons/logo_with_text.png',
+              height: 80,
+              fit: BoxFit.contain,
+            )
                 .animate()
                 .fadeIn(duration: 400.ms)
-                .slideY(
-                  begin: 0.15,
-                  end: 0,
-                  duration: 400.ms,
-                  curve: Curves.easeOut,
-                ),
+                .slideY(begin: 0.15, end: 0, duration: 400.ms, curve: Curves.easeOut),
             const SizedBox(height: 10),
             Text(
               'Dinner with friends, math handled.',
