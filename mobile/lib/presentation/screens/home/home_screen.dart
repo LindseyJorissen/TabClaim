@@ -8,6 +8,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/hangout_summary.dart';
 import '../../../providers/hangout_history_provider.dart';
+import '../../widgets/tab_claim_wordmark.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -19,12 +20,12 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('TabClaim'),
+        title: const TabClaimWordmark(fontSize: 22),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => context.push(AppRoutes.settings),
             icon: const Icon(Icons.person_outline_rounded),
-            tooltip: 'Profile',
+            tooltip: 'Settings',
           ),
         ],
       ),
@@ -37,14 +38,12 @@ class HomeScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: AppSpacing.xl),
-              // ── Start CTA ────────────────────────────────────────────────
               _StartCard(
                 onTap: () => context.push(AppRoutes.createHangout),
               ),
               const SizedBox(height: AppSpacing.xl),
               Text('Recent', style: AppTypography.h3),
               const SizedBox(height: AppSpacing.base),
-              // ── History list ─────────────────────────────────────────────
               Expanded(
                 child: historyAsync.when(
                   loading: () => const Center(
@@ -140,11 +139,7 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.receipt_long_outlined,
-            size: 56,
-            color: AppColors.inkMuted,
-          ),
+          Icon(Icons.receipt_long_outlined, size: 56, color: AppColors.inkMuted),
           const SizedBox(height: AppSpacing.base),
           Text(
             'No hangouts yet',
@@ -153,10 +148,7 @@ class _EmptyState extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            'Start by scanning a receipt',
-            style: AppTypography.caption,
-          ),
+          Text('Start by scanning a receipt', style: AppTypography.caption),
         ],
       ),
     );
@@ -215,8 +207,8 @@ class _HangoutCard extends StatelessWidget {
                   ),
                   Text(
                     _monthAbbr(summary.createdAt.month),
-                    style:
-                        AppTypography.caption.copyWith(color: AppColors.primary),
+                    style: AppTypography.caption
+                        .copyWith(color: AppColors.primary),
                   ),
                 ],
               ),
@@ -237,9 +229,10 @@ class _HangoutCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Total
+            // Total — use the currency stored with the summary
             Text(
-              CurrencyFormatter.format(summary.total),
+              CurrencyFormatter.format(summary.total,
+                  currency: summary.currency),
               style: AppTypography.amountSmall,
             ),
           ],

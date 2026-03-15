@@ -10,6 +10,7 @@ import '../presentation/screens/hangout/create_hangout_screen.dart';
 import '../presentation/screens/receipt/scan_receipt_screen.dart';
 import '../presentation/screens/receipt/review_receipt_screen.dart';
 import '../presentation/screens/summary/summary_screen.dart';
+import '../presentation/screens/settings/settings_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
@@ -34,6 +35,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.home,
       builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.settings,
+      builder: (context, state) => const SettingsScreen(),
     ),
     GoRoute(
       path: AppRoutes.createHangout,

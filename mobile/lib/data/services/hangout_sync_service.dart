@@ -11,13 +11,13 @@ class HangoutSyncService {
   const HangoutSyncService(this._dio);
   final Dio _dio;
 
-  Future<void> sync(SummaryArgs args) async {
+  Future<void> sync(SummaryArgs args, {String currency = 'USD'}) async {
     // ── 1. Create hangout ────────────────────────────────────────────────────
     final hangoutResp = await _dio.post<Map<String, dynamic>>(
       '/hangouts',
       data: {
         'name': args.hangoutName,
-        'currency': 'USD',
+        'currency': currency,
         'participants': args.participants
             .map((p) => {
                   'name': p.name,

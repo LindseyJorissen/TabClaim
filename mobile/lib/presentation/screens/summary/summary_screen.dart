@@ -17,6 +17,7 @@ import '../../../data/services/hangout_sync_service.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/hangout_draft_provider.dart';
 import '../../../providers/hangout_history_provider.dart';
+import '../../../providers/settings_provider.dart';
 import '../../widgets/participant_avatar/participant_avatar.dart';
 import '../hangout/claiming_screen.dart';
 
@@ -41,13 +42,17 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
 
   // ── Sync ─────────────────────────────────────────────────────────────────
 
+  String get _currency =>
+      ref.read(settingsProvider).valueOrNull?.currency ?? 'USD';
+
   Future<void> _trySync() async {
     final auth = ref.read(authProvider).valueOrNull;
     if (auth == null || !auth.isAuthenticated) return; // guests don't sync
 
     setState(() => _syncStatus = _SyncStatus.syncing);
     try {
-      await HangoutSyncService(ApiClient.instance).sync(widget.args);
+      await HangoutSyncService(ApiClient.instance)
+          .sync(widget.args, currency: _currency);
       if (mounted) setState(() => _syncStatus = _SyncStatus.synced);
     } catch (_) {
       if (mounted) setState(() => _syncStatus = _SyncStatus.failed);
@@ -68,7 +73,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
       name: widget.args.hangoutName,
       createdAt: DateTime.now(),
       total: widget.args.total,
-      currency: 'USD',
+      currency: _currency,
       participantNames:
           widget.args.participants.map((p) => p.name).toList(),
       settlements: widget.args.settlements.map((s) {
@@ -95,9 +100,10 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
   }
 
   String _buildShareText() {
+    final c = _currency;
     final buf = StringBuffer();
     buf.writeln('💸 ${widget.args.hangoutName}');
-    buf.writeln('Total: ${CurrencyFormatter.format(widget.args.total)}');
+    buf.writeln('Total: ${CurrencyFormatter.format(widget.args.total, currency: c)}');
     buf.writeln();
 
     if (widget.args.settlements.isEmpty) {
@@ -110,7 +116,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
         final to = widget.args.participants
             .firstWhere((p) => p.id == s.toParticipantId)
             .name;
-        buf.writeln('$from owes $to ${CurrencyFormatter.format(s.amount)}');
+        buf.writeln('$from owes $to ${CurrencyFormatter.format(s.amount, currency: c)}');
       }
     }
 
@@ -123,6 +129,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currency = ref.watch(settingsProvider).valueOrNull?.currency ?? 'USD';
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -153,6 +160,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
           _SuccessHeader(
             total: widget.args.total,
             payerName: widget.args.payerName,
+            currency: currency,
           ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
 
           const SizedBox(height: AppSpacing.xxl),
@@ -170,6 +178,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                     child: _SettlementCard(
                       settlement: e.value,
                       participants: widget.args.participants,
+                      currency: currency,
                     ).animate().fadeIn(
                           delay: (e.key * 80).ms,
                           duration: 300.ms,
@@ -185,6 +194,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
           _PerPersonBreakdown(
             participants: widget.args.participants,
             items: widget.args.items,
+            currency: currency,
           ),
 
           const SizedBox(height: AppSpacing.xxl),
@@ -237,9 +247,14 @@ class _SyncBadge extends StatelessWidget {
 // ── Widgets ───────────────────────────────────────────────────────────────────
 
 class _SuccessHeader extends StatelessWidget {
-  const _SuccessHeader({required this.total, required this.payerName});
+  const _SuccessHeader({
+    required this.total,
+    required this.payerName,
+    required this.currency,
+  });
   final double total;
   final String payerName;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +283,7 @@ class _SuccessHeader extends StatelessWidget {
           Text('All done!', style: AppTypography.h2),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '$payerName paid ${CurrencyFormatter.format(total)} total',
+            '$payerName paid ${CurrencyFormatter.format(total, currency: currency)} total',
             style: AppTypography.body.copyWith(color: AppColors.inkSecondary),
             textAlign: TextAlign.center,
           ),
@@ -282,9 +297,11 @@ class _SettlementCard extends StatelessWidget {
   const _SettlementCard({
     required this.settlement,
     required this.participants,
+    required this.currency,
   });
   final Settlement settlement;
   final List<Participant> participants;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -315,7 +332,7 @@ class _SettlementCard extends StatelessWidget {
             ),
           ),
           Text(
-            CurrencyFormatter.format(settlement.amount),
+            CurrencyFormatter.format(settlement.amount, currency: currency),
             style: AppTypography.amount.copyWith(color: AppColors.primary),
           ),
         ],
@@ -352,9 +369,11 @@ class _PerPersonBreakdown extends StatelessWidget {
   const _PerPersonBreakdown({
     required this.participants,
     required this.items,
+    required this.currency,
   });
   final List<Participant> participants;
   final List<ReceiptItem> items;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -380,7 +399,7 @@ class _PerPersonBreakdown extends StatelessWidget {
                   child: Text(p.name, style: AppTypography.bodyMedium),
                 ),
                 Text(
-                  CurrencyFormatter.format(share),
+                  CurrencyFormatter.format(share, currency: currency),
                   style: AppTypography.amountSmall,
                 ),
               ],
