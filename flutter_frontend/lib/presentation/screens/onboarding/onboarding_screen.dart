@@ -193,7 +193,7 @@ class _OnboardingPage extends StatelessWidget {
         children: [
           // ── Brand mark ──────────────────────────────────────────────
           Image.asset(
-            'assets/icons/logo_with_text.png',
+            'assets/icons/logo_with_text_beige.png',
             height: 72,
             fit: BoxFit.contain,
           )
