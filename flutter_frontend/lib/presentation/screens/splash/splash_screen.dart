@@ -48,19 +48,25 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'assets/icons/logo_with_text.png',
-              height: 80,
+              'assets/icons/receipt_trans_back.png',
+              height: 100,
               fit: BoxFit.contain,
             )
                 .animate()
                 .fadeIn(duration: 400.ms)
                 .slideY(begin: 0.15, end: 0, duration: 400.ms, curve: Curves.easeOut),
+            const SizedBox(height: 16),
+            Image.asset(
+              'assets/icons/text_only.png',
+              height: 32,
+              fit: BoxFit.contain,
+            ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
             const SizedBox(height: 10),
             Text(
               'Dinner with friends, math handled.',
               style: AppTypography.body
                   .copyWith(color: AppColors.inkSecondary),
-            ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+            ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
           ],
         ),
       ),
