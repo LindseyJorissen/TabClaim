@@ -51,7 +51,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ),
             const SizedBox(height: 10),
             Text(
-              'Scan. Claim. Done.',
+              'Dinner with friends, math handled.',
               style: AppTypography.body
                   .copyWith(color: AppColors.inkSecondary),
             ).animate().fadeIn(delay: 300.ms, duration: 400.ms),

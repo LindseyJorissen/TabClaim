@@ -19,7 +19,7 @@ class TabClaimWordmark extends StatelessWidget {
         children: [
           TextSpan(
             text: 'Tab',
-            style: TextStyle(color: AppColors.ink),
+            style: TextStyle(color: const Color(0xFFFFD600)),
           ),
           TextSpan(
             text: 'Claim',
