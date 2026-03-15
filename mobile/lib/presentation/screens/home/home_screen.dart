@@ -84,45 +84,45 @@ class _StartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.primary,
-      borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(9999),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Row(
+        borderRadius: BorderRadius.circular(9999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.xxl,
+            horizontal: AppSpacing.xl,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(9999),
+            border: Border.all(color: AppColors.primary, width: 2),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'New hangout',
-                      style: AppTypography.h2.copyWith(color: Colors.white),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Scan a receipt and start claiming',
-                      style: AppTypography.body.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(AppSpacing.radius),
+                width: 56,
+                height: 56,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.add_rounded,
                   color: Colors.white,
-                  size: 28,
+                  size: 30,
                 ),
+              ),
+              const SizedBox(height: AppSpacing.base),
+              Text(
+                'New hangout',
+                style: AppTypography.h2.copyWith(color: AppColors.primary),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Scan a receipt and start claiming',
+                style: AppTypography.body.copyWith(color: AppColors.inkSecondary),
               ),
             ],
           ),
